@@ -1,8 +1,12 @@
 [tool.poetry]
 name = "poolnet"
 version = "0.1.0"
-description = ""
+description = "Real-Time Salient Object Detection"
 authors = ["reeve0930 <reeve0930@gmail.com>"]
+license = "MIT"
+keywords = ["saliency", "poolnet"] 
+readme = "README.md"
+repository = "https://github.com/reeve0930/PoolNet"
 
 [tool.poetry.dependencies]
 python = "^3.7"
