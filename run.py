@@ -5,19 +5,22 @@ import cv2
 import numpy as np
 import torch
 from torch.autograd import Variable
+from reelib import contimg
 
 from networks.joint_poolnet import build_model
 
 if __name__ == "__main__":
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     net = build_model("resnet")
     net.load_state_dict(torch.load("data/final.pth"))
-    net.cuda()
+    net.to(device)
     net.eval()
 
     img_list = sorted(glob("test/*.jpg"))
 
     for img in img_list:
         im = cv2.imread(img)
+        im = contimg.resize(im, (640, 360))
         in_ = np.array(im, dtype=np.float32)
         im_size = tuple(in_.shape[:2])
         in_ -= np.array((104.00699, 116.66877, 122.67892))
@@ -28,7 +31,7 @@ if __name__ == "__main__":
 
         with torch.no_grad():
             image = Variable(image)
-            image = image.cuda()
+            image = image.to(device)
             preds = net(image, mode=1)
             pred = np.squeeze(torch.sigmoid(preds).cpu().data.numpy())
             multi_fuse = 255 * pred
@@ -39,7 +42,13 @@ if __name__ == "__main__":
 
             cv2.imwrite(
                 os.path.join(
-                    "results", "{}.png".format(img.split("/")[-1].strip(".jpg"))
+                    "results", "{}_h.png".format(img.split("/")[-1].strip(".jpg"))
                 ),
                 heatmap_img,
+            )
+            cv2.imwrite(
+                os.path.join(
+                    "results", "{}_m.png".format(img.split("/")[-1].strip(".jpg"))
+                ),
+                mask,
             )
